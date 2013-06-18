@@ -1,5 +1,5 @@
-<?php
-namespace Toddish\Verify;
+<?php 
+namespace T3chnik\Verifyl4Mongolid;
 
 use Illuminate\Hashing\HasherInterface;
 use Illuminate\Auth\UserProviderInterface;
@@ -42,7 +42,8 @@ class VerifyUserProvider implements UserProviderInterface
      */
     public function retrieveByID($identifier)
     {
-        return $this->createModel()->newQuery()->find($identifier);
+        return Models\User::where( [ '_id' => new \MongoId( $identifier ) ] )
+                ->first();
     }
 
     /**
@@ -52,27 +53,28 @@ class VerifyUserProvider implements UserProviderInterface
      * @return Illuminate\Auth\UserInterface|null
      */
     public function retrieveByCredentials(array $credentials)
-    {
+    {   
         // Are we checking by identifier?
         if (array_key_exists('identifier', $credentials)) {
             // Grab each val to be identifed against
-            foreach (\Config::get('verify::identified_by') as $identified_by) {
+            $model = $this->createModel();
+            foreach (\Config::get('verify-l4-mongolid::identified_by') as $identified_by) {
                 // Create a new query for each check
-                $query = $this->createModel()->newQuery();
+                $where = [];
                 // Start off the query with the first identified_by value
-                $query->where($identified_by, $credentials['identifier']);
+                $where[ $identified_by ] =  $credentials['identifier'];
 
                 // Add any other values to user has passed in
-                foreach ($credentials as $key => $value) {
+                foreach ( $credentials as $key => $value ) {
                     if (
                         !str_contains($key, 'password') &&
                         !str_contains($key, 'identifier')
                     ) {
-                        $query->where($key, $value);
+                        $where[ $key ] = $value;
                     }
                 }
-
-                if ($query->count() != 0) {
+                
+                if ( $model::where( $where )->count() != 0) {
                     break;
                 }
             }
@@ -82,21 +84,22 @@ class VerifyUserProvider implements UserProviderInterface
             // First we will add each credential element to the query as a where clause.
             // Then we can execute the query and, if we found a user, return it in a
             // Eloquent User "model" that will be utilized by the Guard instances.
-            $query = $this->createModel()->newQuery();
-
+            $model = $this->createModel();
+            $where = [];
             foreach ($credentials as $key => $value) {
                 if (!str_contains($key, 'password')) {
-                    $query->where($key, $value);
+                    $where[ $key ] = $value;
                 }
             }
         }
-
+        
+        $result = $model::where( $where );
         // Failed to find a user?
-        if ($query->count() == 0) {
+        if ( $result->count() == 0) {
             throw new UserNotFoundException('User can not be found');
         }
 
-        return $query->first();
+        return $result->first();
     }
 
     /**

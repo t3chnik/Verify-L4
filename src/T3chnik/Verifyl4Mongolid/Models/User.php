@@ -1,10 +1,10 @@
 <?php
-namespace Toddish\Verify\Models;
+namespace T3chnik\Verifyl4Mongolid\Models;
 
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
 
-class User extends BaseModel implements UserInterface, RemindableInterface
+class User extends \Zizaco\MongolidLaravel\MongoLid implements UserInterface, RemindableInterface
 {
     /**
      * The table associated with the model.
@@ -12,6 +12,7 @@ class User extends BaseModel implements UserInterface, RemindableInterface
      * @var string
      */
     protected $table = 'users';
+    public $collection = 'users';
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -25,7 +26,7 @@ class User extends BaseModel implements UserInterface, RemindableInterface
      *
      * @var array
      */
-    protected $fillable = array('username', 'password', 'salt', 'email', 'verified', 'deleted_at', 'disabled');
+    public $fillable = array('username', 'password', 'salt', 'email', 'verified', 'deleted_at', 'disabled');
 
     /**
      * To check cache
@@ -50,11 +51,28 @@ class User extends BaseModel implements UserInterface, RemindableInterface
      */
     public function roles()
     {
-        return $this->belongsToMany(
-                'Toddish\Verify\Models\Role',
-                $this->prefix.'role_user'
-            )
-            ->withTimestamps();;
+        return $this->referencesMany( 'T3chnik\Verifyl4Mongolid\Models\Role' , 'roles' );
+    }
+    
+    /**
+     * 
+     * @param type $roles
+     */
+    public function addRoles( $roles ){
+        
+        if( !is_array( $roles ) ){
+            $roles = [ $roles ];
+        }
+        
+        foreach( $roles as $role ){
+            $this->attach( 'roles' , $role );
+        }
+        $this->save();
+        
+        foreach( $roles as $role ){
+            $role->attach( 'users' , $this );
+            $role->save();
+        }
     }
 
     /**
@@ -70,6 +88,20 @@ class User extends BaseModel implements UserInterface, RemindableInterface
         $this->attributes['password'] = $hashed;
         $this->attributes['salt'] = $salt;
     }
+    
+    /**
+     * 
+     * @param type $name
+     * @param type $value
+     * @return type
+     */
+    public function __set( $name , $value ){
+        if( $name == 'password' ){
+            return $this->setPasswordAttribute( $value );
+        }else{
+            return parent::__set( $name , $value );
+        }
+    }
 
     /**
      * Get the unique identifier for the user.
@@ -78,7 +110,7 @@ class User extends BaseModel implements UserInterface, RemindableInterface
      */
     public function getAuthIdentifier()
     {
-        return $this->getKey();
+        return (string) $this->_id;
     }
 
     /**
@@ -109,14 +141,12 @@ class User extends BaseModel implements UserInterface, RemindableInterface
      */
     public function is($roles)
     {
-        $roles = !is_array($roles)
-            ? array($roles)
-            : $roles;
+        $roles = !is_array($roles) ? array($roles) : $roles;
 
         $to_check = $this->getToCheck();
-
+        
         $valid = FALSE;
-        foreach ($to_check->roles as $role)
+        foreach ($to_check->roles() as $role)
         {
             if (in_array($role->name, $roles))
             {
@@ -136,14 +166,12 @@ class User extends BaseModel implements UserInterface, RemindableInterface
      */
     public function can($permissions)
     {
-        $permissions = !is_array($permissions)
-            ? array($permissions)
-            : $permissions;
+        $permissions = !is_array($permissions) ? array($permissions) : $permissions;
 
         $to_check = $this->getToCheck();
 
         // Are we a super admin?
-        foreach ($to_check->roles as $role)
+        foreach ($to_check->roles() as $role)
         {
             if ($role->name === \Config::get('verify::super_admin'))
             {
@@ -152,9 +180,9 @@ class User extends BaseModel implements UserInterface, RemindableInterface
         }
 
         $valid = FALSE;
-        foreach ($to_check->roles as $role)
+        foreach ($to_check->roles() as $role)
         {
-            foreach ($role->permissions as $permission)
+            foreach ($role->permissions() as $permission)
             {
                 if (in_array($permission->name, $permissions))
                 {
@@ -182,16 +210,10 @@ class User extends BaseModel implements UserInterface, RemindableInterface
         $min = 100;
         $levels = array();
 
-        foreach ($to_check->roles as $role)
+        foreach ($to_check->roles() as $role)
         {
-            $max = $role->level > $max
-                ? $role->level
-                : $max;
-
-            $min = $role->level < $min
-                ? $role->level
-                : $min;
-
+            $max = $role->level > $max ? $role->level : $max;
+            $min = $role->level < $min ? $role->level : $min;
             $levels[] = $role->level;
         }
 
@@ -233,12 +255,8 @@ class User extends BaseModel implements UserInterface, RemindableInterface
         $class = get_class();
 
         if(empty($this->to_check_cache))
-        {
-            $to_check = new $class;
-
-            $to_check = $class::with(array('roles', 'roles.permissions'))
-                ->where('id', '=', $this->attributes['id'])
-                ->first();
+        {   
+            $to_check = $class::where( [ '_id' => $this->getMongoId() ] )->first();
 
             $this->to_check_cache = $to_check;
         }
@@ -250,47 +268,50 @@ class User extends BaseModel implements UserInterface, RemindableInterface
         return $to_check;
     }
 
-    /**
-     * Verified scope
-     *
-     * @param  object $query
-     * @return object
-     */
-    public function scopeVerified($query)
-    {
-        return $query->where('verified', '=', 1);
-    }
-
-    /**
-     * Unverified scope
-     *
-     * @param  object $query
-     * @return object
-     */
-    public function scopeUnverified($query)
-    {
-        return $query->where('verified', '=', 0);
-    }
-
-    /**
-     * Disabled scope
-     *
-     * @param  object $query
-     * @return object
-     */
-    public function scopeDisabled($query)
-    {
-        return $query->where('disabled', '=', 1);
-    }
-
-    /**
-     * Enabled scope
-     *
-     * @param  object $query
-     * @return object
-     */
-    public function scopeEnabled($query)
-    {
-        return $query->where('disabled', '=', 0);
-    }
+//    /**
+//     * Verified scope
+//     *
+//     * @param  object $query
+//     * @return object
+//     */
+//    public function scopeVerified($where)
+//    {
+//        $where['verified'] = 1;
+//        return $where;
+//    }
+//
+//    /**
+//     * Unverified scope
+//     *
+//     * @param  object $query
+//     * @return object
+//     */
+//    public function scopeUnverified($query)
+//    {
+//        $where[ 'verified' ] = 0;
+//        return $where;
+//    }
+//
+//    /**
+//     * Disabled scope
+//     *
+//     * @param  object $query
+//     * @return object
+//     */
+//    public function scopeDisabled( $where )
+//    {
+//        $where['disabled'] = 1;
+//    }
+//
+//    /**
+//     * Enabled scope
+//     *
+//     * @param  object $query
+//     * @return object
+//     */
+//    public function scopeEnabled($where)
+//    {
+//        $where['disabled'] = 0;
+//        return $where;
+//    }
 }

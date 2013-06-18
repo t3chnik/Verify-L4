@@ -3,21 +3,21 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "a0257888ee9e6c0a315fd8201312ad3b",
+    "hash": "272651ca96e6f9bafd056890d783f19c",
     "packages": [
         {
             "name": "illuminate/support",
-            "version": "dev-master",
+            "version": "4.0.x-dev",
             "target-dir": "Illuminate/Support",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
-                "reference": "ae598ed1e33c734ed9beeb4ffd13b8f39c403b01"
+                "reference": "v4.0.5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/support/zipball/ae598ed1e33c734ed9beeb4ffd13b8f39c403b01",
-                "reference": "ae598ed1e33c734ed9beeb4ffd13b8f39c403b01",
+                "url": "https://api.github.com/repos/illuminate/support/zipball/v4.0.5",
+                "reference": "v4.0.5",
                 "shasum": ""
             },
             "require": {
@@ -43,14 +43,106 @@
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
             "authors": [
                 {
                     "name": "Taylor Otwell",
                     "email": "taylorotwell@gmail.com"
                 }
             ],
-            "description": "Various utilities and support functions.",
-            "time": "2013-05-10 04:38:58"
+            "time": "2013-06-11 00:56:49"
+        },
+        {
+            "name": "zizaco/mongolid",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Zizaco/mongolid.git",
+                "reference": "3243f2f59babac76da35ded2c4412ad6d9b2a68f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Zizaco/mongolid/zipball/3243f2f59babac76da35ded2c4412ad6d9b2a68f",
+                "reference": "3243f2f59babac76da35ded2c4412ad6d9b2a68f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "0.7.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Zizaco\\Mongolid": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Zizaco Zizuini",
+                    "email": "zizaco@gmail.com",
+                    "homepage": "http://www.zizaco.net"
+                }
+            ],
+            "description": "Easy, powerful and ultrafast ODM for PHP and MongoDB.",
+            "keywords": [
+                "mongodb",
+                "nosql",
+                "odm"
+            ],
+            "time": "2013-06-06 20:05:46"
+        },
+        {
+            "name": "zizaco/mongolid-laravel",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Zizaco/mongolid-laravel.git",
+                "reference": "218043774d39880663b729d56fcd4b311721694d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Zizaco/mongolid-laravel/zipball/218043774d39880663b729d56fcd4b311721694d",
+                "reference": "218043774d39880663b729d56fcd4b311721694d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0",
+                "zizaco/mongolid": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Zizaco\\MongolidLaravel": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Zizaco Zizuini",
+                    "email": "zizaco@gmail.com",
+                    "homepage": "http://www.zizaco.net"
+                }
+            ],
+            "description": "Easy, powerful and ultrafast MongoDB ODM for Laravel.",
+            "keywords": [
+                "illuminate",
+                "laravel",
+                "mongodb",
+                "nosql",
+                "odm"
+            ],
+            "time": "2013-06-06 12:02:21"
         }
     ],
     "packages-dev": [
@@ -60,9 +152,9 @@
 
     ],
     "minimum-stability": "dev",
-    "stability-flags": [
-
-    ],
+    "stability-flags": {
+        "zizaco/mongolid-laravel": 20
+    },
     "platform": {
         "php": ">=5.3.0"
     },

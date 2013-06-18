@@ -1,7 +1,7 @@
 <?php
-namespace Toddish\Verify\Models;
+namespace T3chnik\Verifyl4Mongolid\Models;
 
-class BaseModel extends \Eloquent
+class BaseModel extends \Zizaco\MongolidLaravel\MongoLid
 {
     /**
      * Table prefix
@@ -11,7 +11,7 @@ class BaseModel extends \Eloquent
     protected $prefix = '';
 
     /**
-     * Create a new Eloquent model instance.
+     * Create a new Mongolid model instance.
      *
      * @param  array  $attributes
      * @return void
@@ -19,10 +19,10 @@ class BaseModel extends \Eloquent
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
-
+        
         // Set the prefix
-        $this->prefix = \Config::get('verify::prefix', 'test');
-
-        $this->table = $this->prefix.$this->getTable();
+        $this->prefix = \Config::get('verify-l4-mongolid::prefix', 'test');
+        $this->collection = $this->prefix.$this->collection;
     }
+    
 }
