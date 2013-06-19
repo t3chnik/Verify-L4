@@ -47,6 +47,9 @@ class Permission extends BaseModel
         $this->save();
         
         foreach ( $roles as $role ) {
+            if( !is_object( $role ) ){
+                $role = Role::first( [ '_id' => $role ] );
+            }
             $role->attach( 'permissions' , $this );
             $role->save();
         }

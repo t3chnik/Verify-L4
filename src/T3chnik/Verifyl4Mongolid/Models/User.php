@@ -73,6 +73,9 @@ class User extends \Zizaco\MongolidLaravel\MongoLid implements UserInterface, Re
         $this->save();
         
         foreach( $roles as $role ){
+            if( !is_object($role) ){
+                $role = Role::first( [ '_id' => $role ] );
+            }
             $role->attach( 'users' , $this );
             $role->save();
         }
