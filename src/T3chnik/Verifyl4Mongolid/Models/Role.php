@@ -39,6 +39,9 @@ class Role extends BaseModel
         }
         
         foreach( $users as $user ){
+            if( !is_object( $user ) ){
+                $user = User::first([ '_id' => $user ]);
+            }
             $this->attach( 'users' , $user );
         }
         $this->save();
@@ -70,6 +73,9 @@ class Role extends BaseModel
         } 
 
         foreach( $permissions as $permission ){
+            if( !is_object($permission) ){
+                $permission = Permission::first( [ '_id' => $permission ] );
+            }
             $this->attach( 'permissions' , $permission );
             
         }
