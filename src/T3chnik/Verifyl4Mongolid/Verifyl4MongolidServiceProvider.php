@@ -27,8 +27,7 @@ class Verifyl4MongolidServiceProvider extends ServiceProvider {
             {
                 return new Guard(
                     new VerifyUserProvider(
-                        new BcryptHasher,
-                        \Config::get('auth.model')
+                        new BcryptHasher, \Config::get('auth.model')
                     ),
                     \App::make('session')
                 );

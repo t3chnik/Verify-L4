@@ -42,8 +42,8 @@ class VerifyUserProvider implements UserProviderInterface
      */
     public function retrieveByID($identifier)
     {
-        return Models\User::where( [ '_id' => new \MongoId( $identifier ) ] )
-                ->first();
+        $model = $this->createModel();
+        return $model::first( [ '_id' => new \MongoId( $identifier ) ] );
     }
 
     /**
