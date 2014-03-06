@@ -13,7 +13,6 @@
     "homepage": "http://docs.toddish.co.uk/verify-l4/",
     "require": {
         "php": ">=5.3.0",
-        "illuminate/support": "4.0.x",
         "zizaco/mongolid-laravel": "dev-master"
     },
     "autoload": {
