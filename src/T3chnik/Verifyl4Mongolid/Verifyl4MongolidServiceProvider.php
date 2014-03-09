@@ -1,7 +1,6 @@
-<?php 
+<?php
 namespace T3chnik\Verifyl4Mongolid;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Hashing\BcryptHasher;
 use Illuminate\Auth\Guard;
 
@@ -22,7 +21,7 @@ class Verifyl4MongolidServiceProvider extends ServiceProvider {
 	public function boot()
 	{
             $this->package('t3chnik/verify-l4-mongolid');
-            
+
             \Auth::extend('verify', function()
             {
                 return new Guard(
@@ -31,7 +30,7 @@ class Verifyl4MongolidServiceProvider extends ServiceProvider {
                     ),
                     \App::make('session')
                 );
-            }); 
+            });
 	}
 
 	/**
